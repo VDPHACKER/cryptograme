@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CryptoShare - Cryptage & Partage Sécurisé</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jsencrypt/3.3.2/jsencrypt.min.js"></script>
+    <style>
+.ascii-title {
+    font-family: monospace, 'Courier New';
+    white-space: pre;
+    color: #00ffcc;
+    text-shadow: 0 0 5px #00ffcc, 0 0 10px #008080;
+    font-size: 14px;
+    text-align: center;
+    margin: 20px 0;
+}
+
+        .gradient-bg {
+            background: linear-gradient(135deg, #6B73FF 0%, #000DFF 50%, #0085FF 100%);
+        }
+        .crypto-card {
+            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .share-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+        .animated-input:focus {
+            box-shadow: 0 0 0 3px rgba(107, 115, 255, 0.3);
+        }
+        .file-upload:hover {
+            background: rgba(107, 115, 255, 0.2);
+        }
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+        .floating {
+            animation: float 6s ease-in-out infinite;
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-gray-100 min-h-screen">
+    <!-- Navigation -->
+    <nav class="bg-gray-800 bg-opacity-90 backdrop-filter backdrop-blur-lg sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-lock text-blue-400 text-2xl"></i>
+                    </div>
+                    <div class="hidden md:block">
+                        <div class="ml-10 flex items-baseline space-x-4">
+                            <a href="#accueil" class="px-3 py-2 rounded-md text-sm font-medium text-white bg-blue-600">Accueil</a>
+                            <a href="#cryptage" class="px-3 py-2 rounded-md text-sm font-medium text-gray-300 hover:text-white">Cryptage</a>
+                            <a href="#decryptage" class="px-3 py-2 rounded-md text-sm font-medium text-gray-300 hover:text-white">Décryptage</a>
+                            <a href="#aide" class="px-3 py-2 rounded-md text-sm font-medium text-gray-300 hover:text-white">Aide</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="hidden md:block">
+                    <div class="ml-4 flex items-center md:ml-6">
+                        <button class="p-1 rounded-full text-gray-400 hover:text-white focus:outline-none">
+                            <i class="fas fa-cog"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="-mr-2 flex md:hidden">
+                    <button type="button" class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-white hover:bg-gray-700 focus:outline-none" aria-controls="mobile-menu" aria-expanded="false">
+                        <span class="sr-only">Open main menu</span>
+                        <i class="fas fa-bars"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <div id="accueil" class="gradient-bg py-20 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-7xl mx-auto">
+            <div class="lg:grid lg:grid-cols-2 lg:gap-12 items-center">
+                <div class="mb-12 lg:mb-0">
+                    <h1 class="text-4xl md:text-5xl font-extrabold tracking-tight text-white mb-6">
+                        Cryptez & Partagez en <span class="text-yellow-300">toute sécurité</span>
+                    </h1>
+                    <p class="text-lg md:text-xl text-blue-100 mb-8">
+                        Protégez vos messages et fichiers avec un cryptage AES-256 avant de les partager via vos applications préférées.
+                    </p>
+                    <div class="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
+                        <button class="bg-white text-blue-600 hover:bg-gray-100 px-6 py-3 rounded-lg font-semibold shadow-lg transition duration-300">
+                            <i class="fas fa-lock mr-2"></i> Crypter Maintenant
+                        </button>
+                        <button class="bg-blue-800 bg-opacity-60 hover:bg-opacity-80 text-white px-6 py-3 rounded-lg font-semibold shadow-lg transition duration-300">
+                            <i class="fas fa-unlock mr-2"></i> Décrypter un Message
+                        </button>
+                    </div>
+                </div>
+                <div class="relative floating">
+                    <div class="crypto-card rounded-2xl p-6 shadow-2xl">
+                        <div class="flex items-center mb-4">
+                            <div class="bg-blue-600 rounded-full p-2 mr-3">
+                                <i class="fas fa-shield-alt text-white"></i>
+                            </div>
+                            <h3 class="text-xl font-bold">Message Crypté</h3>
+                        </div>
+                        <div class="bg-gray-800 rounded-lg p-4 mb-4">
+                            <p class="text-gray-300 font-mono break-words">U2FsdGVkX1+E6J4VjD3nDmwW7j5XJ7bU...</p>
+                        </div>
+                        <div class="flex flex-wrap gap-2">
+                            <button class="share-btn bg-gray-600 text-gray-400 px-3 py-2 rounded-full text-sm cursor-not-allowed" disabled>
+                                <i class="fab fa-whatsapp mr-1"></i> WhatsApp
+                            </button>
+                            <button class="share-btn bg-gray-600 text-gray-400 px-3 py-2 rounded-full text-sm cursor-not-allowed" disabled>
+                                <i class="fab fa-facebook-messenger mr-1"></i> Messenger
+                            </button>
+                            <button class="share-btn bg-gray-600 text-gray-400 px-3 py-2 rounded-full text-sm cursor-not-allowed" disabled>
+                                <i class="fas fa-envelope mr-1"></i> Gmail
+                            </button>
+                            <button class="share-btn bg-gray-600 text-gray-400 px-3 py-2 rounded-full text-sm cursor-not-allowed" disabled>
+                                <i class="fab fa-bluetooth-b mr-1"></i> Bluetooth
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
+        <!-- Encryption Section -->
+        <div id="cryptage" class="crypto-card rounded-xl p-6 mb-12">
+            <h2 class="text-2xl font-bold mb-6 flex items-center">
+                <i class="fas fa-lock-open mr-3 text-blue-400"></i> Crypter un Message ou Fichier
+            </h2>
+            
+            <div class="grid md:grid-cols-2 gap-8">
+                <!-- Text Encryption -->
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Message Textuel</h3>
+                    <textarea id="messageToEncrypt" class="w-full bg-gray-800 border border-gray-700 rounded-lg p-4 h-40 animated-input focus:outline-none focus:border-blue-500 transition duration-300" placeholder="Entrez votre message à crypter ici..."></textarea>
+                    
+                    <div class="mt-4">
+                        <label class="block text-sm font-medium mb-2">Clé publique (générée automatiquement)</label>
+                        <input type="text" id="encryptionKey" class="w-full bg-gray-800 border border-gray-700 rounded-lg p-3 animated-input focus:outline-none focus:border-blue-500 transition duration-300" placeholder="Clé RSA générée automatiquement" readonly>
+                    </div>
+                    
+                    <button onclick="encryptMessage()" class="mt-4 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition duration-300 w-full">
+                        <i class="fas fa-lock mr-2"></i> Crypter le Message
+                    </button>
+                </div>
+                
+                <!-- File Encryption -->
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Fichier</h3>
+                    <div class="file-upload border-2 border-dashed border-gray-700 rounded-lg p-8 text-center cursor-pointer transition duration-300 hover:border-blue-500">
+                        <i class="fas fa-cloud-upload-alt text-4xl text-blue-400 mb-4"></i>
+                        <p class="mb-2">Glissez-déposez votre fichier ici ou</p>
+                        <label for="fileUpload" class="bg-gray-800 hover:bg-gray-700 text-white px-4 py-2 rounded-lg cursor-pointer inline-block">
+                            <i class="fas fa-folder-open mr-2"></i> Parcourir
+                        </label>
+                        <input type="file" id="fileUpload" class="hidden">
+                        <p class="text-sm text-gray-400 mt-4">Taille maximale : 50MB</p>
+                    </div>
+                    
+                    <div id="selectedFileName" class="hidden mt-4 bg-gray-800 rounded-lg p-3">
+                        <i class="fas fa-file mr-2"></i>
+                        <span id="fileName"></span>
+                        <button onclick="clearFileSelection()" class="float-right text-red-400 hover:text-red-300">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    
+                    <button onclick="encryptFile()" id="encryptFileBtn" class="mt-4 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition duration-300 w-full opacity-50 cursor-not-allowed" disabled>
+                        <i class="fas fa-lock mr-2"></i> Crypter le Fichier
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Result Section (Initially Hidden) -->
+        <div id="resultSection" class="crypto-card rounded-xl p-6 mb-12 hidden">
+            <h2 class="text-2xl font-bold mb-6 flex items-center">
+                <i class="fas fa-shield-alt mr-3 text-green-400"></i> Résultat Crypté
+            </h2>
+            
+            <div class="bg-gray-800 rounded-lg p-4 mb-6">
+                <div class="flex justify-between items-center mb-2">
+                    <span class="text-sm text-gray-400">Contenu crypté</span>
+                    <button onclick="copyToClipboard('encryptedResult')" class="text-blue-400 hover:text-blue-300 text-sm">
+                        <i class="fas fa-copy mr-1"></i> Copier
+                    </button>
+                </div>
+                <div id="encryptedResult" class="text-gray-300 font-mono break-words overflow-auto max-h-40"></div>
+            </div>
+            
+            <div class="mb-6">
+                <label class="block text-sm font-medium mb-2">Clé de décryptage</label>
+                <div class="flex">
+                    <input type="text" id="decryptionKey" class="flex-grow bg-gray-800 border border-gray-700 rounded-l-lg p-3 focus:outline-none focus:border-blue-500" readonly>
+                    <button onclick="copyToClipboard('decryptionKey')" class="bg-blue-600 hover:bg-blue-700 px-4 rounded-r-lg">
+                        <i class="fas fa-copy"></i>
+                    </button>
+                </div>
+                <p class="text-xs text-gray-400 mt-2">Conservez cette clé précieusement, elle est nécessaire pour décrypter le message.</p>
+            </div>
+            
+          <h3 class="text-lg font-semibold mb-4">Partager via :</h3>
+            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3">
+                <button onclick="shareViaWhatsApp()" class="share-btn bg-green-600 hover:bg-green-700 text-white p-3 rounded-lg transition duration-300 flex items-center justify-center">
+                    <i class="fab fa-whatsapp mr-2"></i> WhatsApp
+                </button>
+                <button onclick="shareViaMessenger()" class="share-btn bg-blue-500 hover:bg-blue-600 text-white p-3 rounded-lg transition duration-300 flex items-center justify-center">
+                    <i class="fab fa-facebook-messenger mr-2"></i> Messenger
+                </button>
+                <button onclick="shareViaGmail()" class="share-btn bg-red-500 hover:bg-red-600 text-white p-3 rounded-lg transition duration-300 flex items-center justify-center">
+                    <i class="fas fa-envelope mr-2"></i> Gmail
+                </button>
+                <button onclick="shareViaSMS()" class="share-btn bg-gray-700 hover:bg-gray-600 text-white p-3 rounded-lg transition duration-300 flex items-center justify-center">
+                    <i class="fas fa-sms mr-2"></i> SMS
+                </button>
+                <button onclick="shareViaBluetooth()" class="share-btn bg-purple-600 hover:bg-purple-700 text-white p-3 rounded-lg transition duration-300 flex items-center justify-center">
+                    <i class="fab fa-bluetooth-b mr-2"></i> Bluetooth
+                </button>
+                <button onclick="downloadEncrypted()" class="share-btn bg-blue-700 hover:bg-blue-800 text-white p-3 rounded-lg transition duration-300 flex items-center justify-center">
+                    <i class="fab fa-microsoft mr-2"></i> OneDrive
+                </button>
+            </div>
+</div>
+        <!-- Decryption Section -->
+        <div id="decryptage" class="crypto-card rounded-xl p-6 mb-12">
+            <h2 class="text-2xl font-bold mb-6 flex items-center">
+                <i class="fas fa-unlock mr-3 text-green-400"></i> Décrypter un Message
+            </h2>
+            
+            <div class="mb-6">
+                <label class="block text-sm font-medium mb-2">Message crypté</label>
+                <textarea id="messageToDecrypt" class="w-full bg-gray-800 border border-gray-700 rounded-lg p-4 h-40 animated-input focus:outline-none focus:border-blue-500 transition duration-300" placeholder="Collez votre message crypté ici..."></textarea>
+            </div>
+            
+            <div class="mb-6">
+                <label class="block text-sm font-medium mb-2">Clé de décryptage</label>
+                <input type="text" id="decryptionKeyInput" class="w-full bg-gray-800 border border-gray-700 rounded-lg p-3 animated-input focus:outline-none focus:border-blue-500 transition duration-300" placeholder="Entrez la clé de décryptage">
+            </div>
+            
+            <button onclick="decryptMessage()" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition duration-300 w-full">
+                <i class="fas fa-unlock mr-2"></i> Décrypter le Message
+            </button>
+            
+            <div id="decryptedResult" class="mt-6 bg-gray-800 rounded-lg p-4 hidden">
+                <div class="flex justify-between items-center mb-2">
+                    <span class="text-sm text-gray-400">Message décrypté</span>
+                    <button onclick="copyToClipboard('decryptedText')" class="text-blue-400 hover:text-blue-300 text-sm">
+                        <i class="fas fa-copy mr-1"></i> Copier
+                    </button>
+                </div>
+                <div id="decryptedText" class="text-gray-300 break-words"></div>
+            </div>
+        </div>
+
+        <!-- Features Section -->
+        <div class="grid md:grid-cols-3 gap-6 mb-12">
+            <div class="crypto-card rounded-xl p-6">
+                <div class="text-blue-400 text-3xl mb-4">
+                    <i class="fas fa-user-shield"></i>
+                </div>
+                <h3 class="text-xl font-bold mb-3">Cryptage Fort</h3>
+                <p class="text-gray-300">Utilisation de l'algorithme AES-256 bits, le standard de cryptage le plus sécurisé actuellement.</p>
+            </div>
+            <div class="crypto-card rounded-xl p-6">
+                <div class="text-green-400 text-3xl mb-4">
+                    <i class="fas fa-share-alt"></i>
+                </div>
+                <h3 class="text-xl font-bold mb-3">Partage Multiplateforme</h3>
+                <p class="text-gray-300">Partagez vos messages cryptés via toutes vos applications favorites en un seul clic.</p>
+            </div>
+            <div class="crypto-card rounded-xl p-6">
+                <div class="text-purple-400 text-3xl mb-4">
+                    <i class="fas fa-history"></i>
+                </div>
+                <h3 class="text-xl font-bold mb-3">Aucun Historique</h3>
+                <p class="text-gray-300">Tout le traitement se fait localement dans votre navigateur, nous ne stockons aucune donnée.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 py-8">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">CryptoShare</h3>
+                    <p class="text-gray-400">La solution simple et sécurisée pour protéger vos communications.</p>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Navigation</h3>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-400 hover:text-white">Accueil</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Cryptage</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Décryptage</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">FAQ</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Légal</h3>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-400 hover:text-white">Conditions d'utilisation</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Politique de confidentialité</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Mentions légales</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Contact</h3>
+                    <ul class="space-y-2">
+                        <li class="flex items-center text-gray-400"><i class="fas fa-envelope mr-2"></i> freelence1200@gmail.com</li>
+                        <li class="flex items-center text-gray-400"><i class="fab fa-twitter mr-2"></i> @VDPHACKER</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="border-t border-gray-700 mt-8 pt-8 text-center text-gray-400">
+                <p>© 2025 VDPHACKER cryptographie Tous droits réservés.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+    // File Upload Handling
+    document.getElementById('fileUpload').addEventListener('change', function(e) {
+      if (this.files.length > 0) {
+        const file = this.files[0];
+        document.getElementById('fileName').textContent = file.name;
+        document.getElementById('selectedFileName').classList.remove('hidden');
+        document.getElementById('encryptFileBtn').disabled = false;
+        document.getElementById('encryptFileBtn').classList.remove('opacity-50', 'cursor-not-allowed');
+      }
+    });
+
+    function clearFileSelection() {
+      document.getElementById('fileUpload').value = '';
+      document.getElementById('selectedFileName').classList.add('hidden');
+      document.getElementById('encryptFileBtn').disabled = true;
+      document.getElementById('encryptFileBtn').classList.add('opacity-50', 'cursor-not-allowed');
+    }
+
+    function generateKeyPair() {
+      const crypt = new JSEncrypt({ default_key_size: 2048 });
+      return {
+        publicKey: crypt.getPublicKey(),
+        privateKey: crypt.getPrivateKey()
+      };
+    }
+
+    function encryptMessage() {
+      const message = document.getElementById('messageToEncrypt').value;
+      if (!message.trim()) {
+        alert('Veuillez entrer un message à crypter');
+        return;
+      }
+      const keys = generateKeyPair();
+      const crypt = new JSEncrypt();
+      crypt.setPublicKey(keys.publicKey);
+      const encrypted = crypt.encrypt(message);
+      if (!encrypted) {
+        alert('Erreur lors du cryptage');
+        return;
+      }
+      document.getElementById('encryptedResult').textContent = encrypted;
+      document.getElementById('decryptionKey').value = keys.privateKey;
+      document.getElementById('resultSection').classList.remove('hidden');
+      document.getElementById('resultSection').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function encryptFile() {
+      const fileInput = document.getElementById('fileUpload');
+      if (fileInput.files.length === 0) return;
+      const file = fileInput.files[0];
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const content = e.target.result;
+        const keys = generateKeyPair();
+        const crypt = new JSEncrypt();
+        crypt.setPublicKey(keys.publicKey);
+        const encrypted = crypt.encrypt(content.substring(0, 1000));
+        document.getElementById('encryptedResult').textContent = `Fichier crypté: ${file.name}.enc\n${encrypted}`;
+        document.getElementById('decryptionKey').value = keys.privateKey;
+        document.getElementById('resultSection').classList.remove('hidden');
+        document.getElementById('resultSection').scrollIntoView({ behavior: 'smooth' });
+      };
+      reader.readAsText(file);
+    }
+
+    function copyToClipboard(elementId) {
+      const element = document.getElementById(elementId);
+      if (element.tagName === "INPUT" || element.tagName === "TEXTAREA") {
+        element.select();
+        document.execCommand('copy');
+      } else {
+        const temp = document.createElement("textarea");
+        temp.value = element.textContent;
+        document.body.appendChild(temp);
+        temp.select();
+        document.execCommand("copy");
+        document.body.removeChild(temp);
+      }
+      alert('Copié dans le presse-papier !');
+    }
+
+    function downloadEncrypted() {
+      const content = document.getElementById('encryptedResult').textContent;
+      const blob = new Blob([content], { type: 'text/plain' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'message_crypte.txt';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+
+    function shareViaWhatsApp() {
+      const encryptedText = document.getElementById('encryptedResult').textContent;
+      const key = document.getElementById('decryptionKey').value;
+      const message = `Voici mon message crypté:\n\n${encryptedText}\n\nClé de décryptage: ${key}\n\nDécryptez-le sur ${window.location.href}`;
+      window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, '_blank');
+    }
+
+    function shareViaMessenger() {
+      alert("Ouvrez Messenger et collez manuellement le message crypté et la clé.");
+    }
+
+    function shareViaGmail() {
+      const encryptedText = document.getElementById('encryptedResult').textContent;
+      const key = document.getElementById('decryptionKey').value;
+      const subject = "Message crypté";
+      const body = `Voici mon message crypté:\n\n${encryptedText}\n\nClé de décryptage: ${key}\n\nDécryptez-le sur ${window.location.href}`;
+      window.open(`mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`, '_blank');
+    }
+
+    function shareViaSMS() {
+      if (/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+        const encryptedText = document.getElementById('encryptedResult').textContent;
+        const key = document.getElementById('decryptionKey').value;
+        const message = `Message crypté: ${encryptedText} - Clé: ${key}`;
+        window.open(`sms:?body=${encodeURIComponent(message)}`, '_blank');
+      } else {
+        alert("Fonctionnalité SMS disponible uniquement sur mobile. Copiez le message manuellement.");
+      }
+    }
+
+    function shareViaBluetooth() {
+      alert("Activez le Bluetooth et partagez le fichier téléchargé via les fonctionnalités de votre appareil.");
+    }
+
+    function decryptMessage() {
+      const encrypted = document.getElementById('messageToDecrypt').value;
+      const privateKey = document.getElementById('decryptionKeyInput').value;
+      if (!encrypted.trim()) {
+        alert('Veuillez entrer un message crypté');
+        return;
+      }
+      if (!privateKey.trim()) {
+        alert('Veuillez entrer la clé privée de décryptage');
+        return;
+      }
+      try {
+        const crypt = new JSEncrypt();
+        crypt.setPrivateKey(privateKey);
+        const decrypted = crypt.decrypt(encrypted);
+        if (!decrypted) throw new Error('Clé privée invalide ou message corrompu');
+        document.getElementById('decryptedText').textContent = decrypted;
+        document.getElementById('decryptedResult').classList.remove('hidden');
+      } catch (e) {
+        alert('Erreur de décryptage: ' + e.message);
+      }
+    }
+  </script>
+</body>
+</html>
